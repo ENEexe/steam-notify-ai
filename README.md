@@ -41,7 +41,7 @@ Examples of the disclosure badge and product-page banner in Steam:
 ## Quick setup
 
 1. Install and run [SFP](https://github.com/PhantomGamers/SFP) using its [official setup guide](https://github.com/PhantomGamers/SFP#instructions) and [official releases](https://github.com/PhantomGamers/SFP/releases); keep SFP running while Steam is open.
-2. Put `webkit.js` in Steam's `steamui` folder using SFP's **Open File** controls (details and backup advice are in [the tutorial](docs/SETUP.md)).
+2. Download `webkit.js` from [Releases](https://github.com/ENEexe/steam-notify-ai/releases/tag/v1.0.0) page and put it in Steam's `steamui` folder using SFP's **Open File** controls.
 3. Enable SFP's JavaScript injection. JavaScript injection is disabled by default; enable it only after reviewing the script.
 4. Start/restart Steam through SFP and confirm `webkit.js` appears in SFP's injection log.
 
