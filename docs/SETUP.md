@@ -1,6 +1,6 @@
 # SFP setup tutorial (Linux)
 
-This guide installs the Steam Notify AI Store script with [SFP](https://github.com/PhantomGamers/SFP). The separate Library Home “What’s New” CSS rule is not included in this project or this tutorial. SFP is an unofficial Steam customization tool; follow its [official install instructions](https://github.com/PhantomGamers/SFP#instructions) and [releases](https://github.com/PhantomGamers/SFP/releases).
+This guide installs the Steam Notify AI Store script with [SFP](https://github.com/PhantomGamers/SFP). SFP is an unofficial Steam customization tool; follow its [official install instructions](https://github.com/PhantomGamers/SFP#instructions) and [releases](https://github.com/PhantomGamers/SFP/releases).
 
 > The Store script only highlights Steam's explicit developer disclosure; it does not hide games. Review `webkit.js` before enabling JavaScript injection.
 
@@ -18,7 +18,7 @@ This guide installs the Steam Notify AI Store script with [SFP](https://github.c
 2. Read and accept SFP's JavaScript-injection warning only after reviewing this repository's `webkit.js`; then enable **JavaScript injection**.
 3. If your SFP version exposes **Inject on Steam Start**, enable it if you want the customization applied automatically on later Steam launches. SFP itself must still be running.
 
-SFP's default Store/community JavaScript target is `Steam/steamui/webkit.js`. The AI badge styles are injected by `webkit.js`; this project does not need a separate Store CSS file. The Library Home `libraryroot.custom.css` rule is a separate customization and is not part of this repository.
+SFP's default Store/community JavaScript target is `Steam/steamui/webkit.js`. The AI badge styles are injected by `webkit.js`; this project does not need a separate Store CSS file.
 
 ## 3. Back up existing files
 
@@ -72,5 +72,5 @@ node --test tests/*.test.cjs
 
 ## 7. Update or remove
 
-- **Update:** close Steam, make a fresh timestamped backup as described in step 3, copy the new repository version, then restart through SFP and check its injection log. This project does not manage the separate Library Home CSS rule.
+- **Update:** close Steam, make a fresh timestamped backup as described in step 3, copy the new repository version, then restart through SFP and check its injection log.
 - **Remove:** close Steam; restore `.pre-steam-notify-ai` to return to the pre-install script, or restore the latest `.before-update-*` snapshot to return to the previous project version. If no prior script existed, delete only the `webkit.js` file installed for this project. Disable JavaScript injection in SFP if no other trusted scripts require it. Do not disable Steam updates or alter game/account data.

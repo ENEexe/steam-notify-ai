@@ -1,6 +1,6 @@
 # Steam Notify AI
 
-A small SFP customization for Steam. It highlights Store games whose Steam product page contains the developer's explicit **AI Generated Content Disclosure**. The Store script does **not** hide games, infer undisclosed AI use, report games, or change account data. The separate Library Home “What’s New” CSS rule is not part of this project and is not included here.
+A small SFP customization for Steam. It highlights Store games whose Steam product page contains the developer's explicit **AI Generated Content Disclosure**. The Store script does **not** hide games, infer undisclosed AI use, report games, or change account data.
 
 ## What’s included
 
@@ -22,8 +22,6 @@ A small SFP customization for Steam. It highlights Store games whose Steam produ
 2. Put `webkit.js` in Steam's `steamui` folder using SFP's **Open File** controls (details and backup advice are in [the tutorial](docs/SETUP.md)).
 3. Enable SFP's JavaScript injection. JavaScript injection is disabled by default; enable it only after reviewing the script.
 4. Start/restart Steam through SFP and confirm `webkit.js` appears in SFP's injection log.
-
-This repository does not include or alter the separate Library Home “What’s New” CSS rule.
 
 ## Tests
 
