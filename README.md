@@ -2,11 +2,6 @@
 
 A small SFP customization for Steam. It highlights Store games whose Steam product page contains the developer's explicit **AI Generated Content Disclosure**. The Store script does **not** hide games, infer undisclosed AI use, report games, or change account data.
 
-## What’s included
-
-- `webkit.js` — adds a badge/outline to explicitly disclosed Store cards and a disclosure banner on the product page. The script includes its own injected styles; a separate Store CSS file is not needed.
-- `tests/` — dependency-free Node.js tests.
-
 ## Screenshots
 
 Examples of the disclosure badge and product-page banner in Steam:
