@@ -8,7 +8,7 @@ A small SFP customization for Steam. It highlights Store games whose Steam produ
 - `tests/` — dependency-free Node.js tests.
 - [SFP Linux setup tutorial](docs/SETUP.md) — step-by-step Linux setup, adding the JavaScript file, verification, and removal.
 
-For Windows or macOS SFP installation, follow the [official SFP setup guide](https://github.com/PhantomGamers/SFP#instructions) linked in Quick setup; this step-by-step tutorial covers Linux.
+For Windows or macOS SFP installation, follow the steps in **Quick setup** section below; this step-by-step tutorial only covers Linux.
 
 ## Screenshots
 
