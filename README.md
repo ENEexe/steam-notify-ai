@@ -8,6 +8,8 @@ A small SFP customization for Steam. It highlights Store games whose Steam produ
 - `tests/` — dependency-free Node.js tests.
 - [SFP setup tutorial](docs/SETUP.md) — step-by-step Linux setup, adding the JavaScript file, verification, and removal.
 
+For Windows or macOS SFP installation, follow the [official SFP setup guide](https://github.com/PhantomGamers/SFP#instructions) linked in Quick setup; this step-by-step tutorial covers Linux.
+
 ## Behavior and limits
 
 - Matches Steam's explicit developer-authored disclosure heading. It does not determine whether a game used AI when the developer did not disclose it.
@@ -18,7 +20,7 @@ A small SFP customization for Steam. It highlights Store games whose Steam produ
 
 ## Quick setup
 
-1. Install and run [SFP](https://github.com/PhantomGamers/SFP) using its [official releases](https://github.com/PhantomGamers/SFP/releases); keep SFP running while Steam is open.
+1. Install and run [SFP](https://github.com/PhantomGamers/SFP) using its [official setup guide](https://github.com/PhantomGamers/SFP#instructions) and [official releases](https://github.com/PhantomGamers/SFP/releases); keep SFP running while Steam is open.
 2. Put `webkit.js` in Steam's `steamui` folder using SFP's **Open File** controls (details and backup advice are in [the tutorial](docs/SETUP.md)).
 3. Enable SFP's JavaScript injection. JavaScript injection is disabled by default; enable it only after reviewing the script.
 4. Start/restart Steam through SFP and confirm `webkit.js` appears in SFP's injection log.
