@@ -197,7 +197,7 @@ function computeSearchBadgePosition({ row, rowBorderLeft = 0, rowBorderTop = 0, 
   return { left, top, width, compact };
 }
 
-function ensureProductBanner(doc, purchase, appId) {
+function ensureProductBanner(doc, purchase, appId, win = null) {
   if (!purchase?.parentElement) return null;
   let banner = doc.querySelector(`.${PRODUCT_BANNER_CLASS}`);
   if (banner && banner.getAttribute("data-app-id") !== String(appId)) {
@@ -217,6 +217,51 @@ function ensureProductBanner(doc, purchase, appId) {
     link.textContent = "View disclosure";
     link.setAttribute("title", "Jump to the developer's AI content disclosure");
     banner.append(badge, link);
+  }
+  const link = banner.querySelector(`.${PRODUCT_LINK_CLASS}`);
+  if (link && link.getAttribute("data-sfp-center-scroll") !== "true") {
+    link.addEventListener("click", (event) => {
+      if (
+        event.defaultPrevented || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+      ) return;
+      const anchor = doc.querySelector(`#${DETAILS_ANCHOR_ID}`);
+      const target = anchor?.parentElement;
+      if (!target || typeof target.scrollIntoView !== "function") return;
+      event.preventDefault();
+      const fragment = `#${DETAILS_ANCHOR_ID}`;
+      if (
+        typeof win?.history?.pushState === "function" &&
+        win.location?.hash !== fragment
+      ) {
+        try {
+          win.history.pushState(win.history.state, "", fragment);
+        } catch {
+          // Keep the centered scroll if the browser refuses the fragment update.
+        }
+      }
+      const focusTarget = target.querySelector("h2") || target;
+      if (typeof focusTarget.focus === "function") {
+        if (focusTarget.getAttribute("tabindex") === null) {
+          focusTarget.setAttribute("tabindex", "-1");
+        }
+        try {
+          focusTarget.focus({ preventScroll: true });
+        } catch {
+          try {
+            focusTarget.focus();
+          } catch {
+            // Keep scrolling even when the target cannot accept focus.
+          }
+        }
+      }
+      const reducedMotion = win?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
+      target.scrollIntoView({
+        behavior: reducedMotion ? "instant" : "smooth",
+        block: "center"
+      });
+    });
+    link.setAttribute("data-sfp-center-scroll", "true");
   }
   if (banner.parentElement !== purchase.parentElement || banner.nextElementSibling !== purchase) {
     purchase.parentElement.insertBefore(banner, purchase);
@@ -414,7 +459,7 @@ function startRuntime(win, doc) {
       ensureDetailsAnchor(block);
     }
     const appId = /^\/app\/(\d+)(?:\/|$)/.exec(win.location.pathname)?.[1] || "unknown";
-    ensureProductBanner(doc, doc.querySelector("#game_area_purchase"), appId);
+    ensureProductBanner(doc, doc.querySelector("#game_area_purchase"), appId, win);
   }
 
   function updateCards(appId, status) {

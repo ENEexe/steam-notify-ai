@@ -34,12 +34,12 @@ Examples of the disclosure badge and product-page banner in Steam:
 - Does not use community reports or third-party disclosure databases.
 - Checks Store cards with same-origin Steam Store requests; caches results for 7 days, allows at most two concurrent lookups, starts requests 600 ms apart, and backs off to 1.2–2 seconds plus at least a 60-second pause after HTTP 403/429 responses (honoring longer `Retry-After` headers).
 - Defers cards beyond the queue limit rather than dropping them.
-- Handles lazy-loaded cards, multiple Steam descriptor blocks, release/review alignment (including rows without a review icon), and the product-page purchase section.
+- Handles lazy-loaded cards, multiple Steam descriptor blocks, release/review alignment (including rows without a review icon), and a product-page banner whose disclosure link centers and focuses the explicit disclosure.
 
 ## Quick setup
 
 1. Install and run [SFP](https://github.com/PhantomGamers/SFP) using its [official setup guide](https://github.com/PhantomGamers/SFP#instructions) and [official releases](https://github.com/PhantomGamers/SFP/releases); keep SFP running while Steam is open.
-2. Download `webkit.js` from [Releases](https://github.com/ENEexe/steam-notify-ai/releases/tag/v1.0.0) page and put it in Steam's `steamui` folder using SFP's **Open File** controls.
+2. Download `webkit.js` from the [latest release](https://github.com/ENEexe/steam-notify-ai/releases/latest) and put it in Steam's `steamui` folder using SFP's **Open File** controls.
 3. Enable **JavaScript injection** in SFP's settings menu under **Steam** category (you might need to scroll down a bit). JavaScript injection is disabled by default; Enable it only after reviewing the script.
 4. Start/restart Steam through SFP and confirm `webkit.js` appears in SFP's injection log.
 
