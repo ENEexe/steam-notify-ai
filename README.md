@@ -1,6 +1,6 @@
 # Steam Notify AI
 
-A small SFP customization for Steam. It highlights Store games whose Steam product page contains the developer's explicit **AI Generated Content Disclosure**. The Store script does **not** hide games, infer undisclosed AI use, report games, or change account data.
+A small SFP customization for Steam. It highlights Store games whose Steam product page contains the developer's explicit **AI Generated Content Disclosure**. For each unique uncached AppID, it makes a same-origin GET to Steam's `/app/{AppID}/?l=english` product page (not a separate Steam Web API), using the browser's normal same-origin credentials. It fetches the page HTML and checks the app-page marker (`appHubAppName`) and the exact disclosure heading in `game_area_content_descriptors`; age-gated or error responses are treated as unknown. The script does not store the HTML or send it to a third party; local storage caches only the AppID's `disclosed`/`clean` result and check timestamp for 7 days. The Store script does **not** hide games, infer undisclosed AI use, report games, or change account data.
 
 ## Screenshots
 
