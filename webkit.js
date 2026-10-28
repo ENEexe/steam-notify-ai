@@ -22,8 +22,11 @@ const MAX_CONCURRENT_REQUESTS = 2;
 const APP_SELECTOR = '[data-ds-appid], a[href*="/app/"]';
 const CARD_CLASS = "sfp-ai-disclosed-card";
 const CARD_BADGE_CLASS = "sfp-ai-disclosure-badge";
+const CARD_BADGE_BASE_CLASS = "sfp-ai-card-badge";
 const SEARCH_BADGE_CLASS = "sfp-ai-search-badge";
 const SEARCH_BADGE_COMPACT_CLASS = "sfp-ai-search-badge-compact";
+const CHECKING_BADGE_CLASS = "sfp-ai-checking-badge";
+const CHECKING_ROW_CLASS = "sfp-ai-checking-row";
 const SECTION_CLASS = "sfp-ai-disclosure-section";
 const PRODUCT_BANNER_CLASS = "sfp-ai-disclosure-product-banner";
 const PRODUCT_BADGE_CLASS = "sfp-ai-disclosure-product-badge";
@@ -83,6 +86,31 @@ function markCardChecked(element, appIds) {
   if (element.getAttribute(CHECKED_ATTRIBUTE) === key) return false;
   element.setAttribute(CHECKED_ATTRIBUTE, key);
   return true;
+}
+
+function searchResultRow(element) {
+  return element?.closest?.("a.search_result_row") || null;
+}
+
+function trackPendingAppId(pendingByRow, row, appId) {
+  let pending = pendingByRow.get(row);
+  if (!pending) {
+    pending = new Set();
+    pendingByRow.set(row, pending);
+  }
+  pending.add(String(appId));
+  return pending.size;
+}
+
+function resolvePendingAppId(pendingByRow, row, appId) {
+  const pending = pendingByRow.get(row);
+  if (!pending) return 0;
+  pending.delete(String(appId));
+  if (pending.size === 0) {
+    pendingByRow.delete(row);
+    return 0;
+  }
+  return pending.size;
 }
 
 function cacheStatus(cache, appId, now = Date.now()) {
@@ -215,6 +243,7 @@ function startRuntime(win, doc) {
   }
 
   const cardsByAppId = new Map();
+  const pendingAppIdsByRow = new WeakMap();
   const queued = new Set();
   const deferred = new Set();
   const queue = [];
@@ -247,11 +276,31 @@ function startRuntime(win, doc) {
     if (existing) return existing;
     const badge = doc.createElement("span");
     badge.className = className;
+    badge.classList.add(CARD_BADGE_BASE_CLASS);
     badge.textContent = text;
     badge.setAttribute("title", title);
     badge.setAttribute("aria-label", title);
     element.appendChild(badge);
     return badge;
+  }
+
+  function showCheckingIndicator(row) {
+    if (!row || row.classList.contains(CARD_CLASS)) return;
+    const badge = addBadge(
+      row,
+      CHECKING_BADGE_CLASS,
+      "Checking…",
+      "Checking Steam for the developer's AI content disclosure"
+    );
+    if (!badge) return;
+    row.classList.add(CHECKING_ROW_CLASS);
+    positionSearchBadge(row, badge, "Checking…", "…");
+  }
+
+  function removeCheckingIndicator(row) {
+    if (!row) return;
+    row.querySelector(`.${CHECKING_BADGE_CLASS}`)?.remove();
+    row.classList.remove(CHECKING_ROW_CLASS);
   }
 
   function visiblePriceBounds(priceElement) {
@@ -273,7 +322,7 @@ function startRuntime(win, doc) {
     };
   }
 
-  function positionSearchBadge(row, badge) {
+  function positionSearchBadge(row, badge, label = "AI disclosed", compactLabel = "AI") {
     const title = row.querySelector(".search_name .title") || row.querySelector(".search_name");
     const release = row.querySelector(".search_released");
     const review = row.querySelector(".search_reviewscore");
@@ -286,7 +335,7 @@ function startRuntime(win, doc) {
 
     badge.classList.add(SEARCH_BADGE_CLASS);
     badge.classList.remove(SEARCH_BADGE_COMPACT_CLASS);
-    badge.textContent = "AI disclosed";
+    badge.textContent = label;
     const rowRect = row.getBoundingClientRect();
     const rowStyle = win.getComputedStyle(row);
     const rects = {
@@ -308,12 +357,12 @@ function startRuntime(win, doc) {
     }
     if (position.compact) {
       badge.classList.add(SEARCH_BADGE_COMPACT_CLASS);
-      badge.textContent = "AI";
+      badge.textContent = compactLabel;
       rects.badge = badge.getBoundingClientRect();
       position = computeSearchBadgePosition({ ...rects, compactWidth: rects.badge.width });
       if (!position) {
         badge.classList.remove(SEARCH_BADGE_CLASS, SEARCH_BADGE_COMPACT_CLASS);
-        badge.textContent = "AI disclosed";
+        badge.textContent = label;
         return false;
       }
     }
@@ -323,9 +372,14 @@ function startRuntime(win, doc) {
   }
 
   function highlightCard(element) {
-    if (!element || !element.isConnected) return;
-    const searchRow = element.closest("a.search_result_row");
+    if (!element) return;
+    const searchRow = searchResultRow(element);
     const card = searchRow || element;
+    if (searchRow) removeCheckingIndicator(searchRow);
+    if (!element.isConnected) {
+      element.removeAttribute(CHECKED_ATTRIBUTE);
+      return;
+    }
     if (card.classList.contains(CARD_CLASS)) return;
     card.classList.add(CARD_CLASS);
     const badge = addBadge(
@@ -364,10 +418,17 @@ function startRuntime(win, doc) {
   }
 
   function updateCards(appId, status) {
-    if (status !== "disclosed") return;
     const cards = cardsByAppId.get(String(appId));
     if (!cards) return;
-    for (const card of cards) highlightCard(card);
+    for (const card of cards) {
+      const row = searchResultRow(card);
+      const remaining = row ? resolvePendingAppId(pendingAppIdsByRow, row, appId) : 0;
+      if (status === "disclosed") {
+        highlightCard(card);
+      } else if (row && remaining === 0) {
+        removeCheckingIndicator(row);
+      }
+    }
   }
 
   function storeCache(appId, status) {
@@ -429,6 +490,7 @@ function startRuntime(win, doc) {
           updateCards(appId, status);
         })
         .catch(() => {
+          updateCards(appId, "unknown");
           // Network failures are not cached; the next page visit can retry.
         })
         .finally(() => {
@@ -456,6 +518,11 @@ function startRuntime(win, doc) {
       cardsByAppId.set(key, cards);
     }
     cards.add(card);
+    const row = searchResultRow(card);
+    if (row) {
+      trackPendingAppId(pendingAppIdsByRow, row, key);
+      showCheckingIndicator(row);
+    }
     if (enqueueLookup(queue, queued, deferred, key, MAX_QUEUED_LOOKUPS) === "queued") {
       pumpQueue();
     }
@@ -469,6 +536,10 @@ function startRuntime(win, doc) {
     for (const row of doc.querySelectorAll("a.search_result_row." + CARD_CLASS)) {
       const badge = row.querySelector("." + CARD_BADGE_CLASS);
       if (badge) positionSearchBadge(row, badge);
+    }
+    for (const row of doc.querySelectorAll("a.search_result_row." + CHECKING_ROW_CLASS)) {
+      const badge = row.querySelector("." + CHECKING_BADGE_CLASS);
+      if (badge) positionSearchBadge(row, badge, "Checking…", "…");
     }
 
     for (const element of doc.querySelectorAll(APP_SELECTOR)) {
@@ -537,7 +608,10 @@ function buildStyles() {
     .search_result_row.${CARD_CLASS} {
       position: relative !important;
     }
-    .${CARD_BADGE_CLASS},
+    .search_result_row.${CHECKING_ROW_CLASS} {
+      position: relative !important;
+    }
+    .${CARD_BADGE_BASE_CLASS},
     .${PRODUCT_BADGE_CLASS} {
       display: inline-block !important;
       padding: 4px 7px !important;
@@ -548,7 +622,7 @@ function buildStyles() {
       letter-spacing: .03em !important;
       text-transform: uppercase !important;
     }
-    .${CARD_BADGE_CLASS} {
+    .${CARD_BADGE_BASE_CLASS} {
       position: absolute !important;
       z-index: 9999 !important;
       top: 6px !important;
@@ -556,6 +630,12 @@ function buildStyles() {
       border: 1px solid rgba(255,255,255,.4) !important;
       box-shadow: 0 1px 5px rgba(0,0,0,.55) !important;
       pointer-events: none !important;
+    }
+    .${CHECKING_BADGE_CLASS} {
+      background: #536777 !important;
+      border-color: rgba(255,255,255,.25) !important;
+      font-size: 9px !important;
+      text-transform: none !important;
     }
     .${SEARCH_BADGE_CLASS} {
       left: var(--sfp-ai-search-left, auto) !important;
@@ -616,6 +696,9 @@ const api = {
   parseDisclosureStatus,
   extractAppIds,
   markCardChecked,
+  searchResultRow,
+  trackPendingAppId,
+  resolvePendingAppId,
   cacheStatus,
   enqueueLookup,
   drainDeferredLookups,
