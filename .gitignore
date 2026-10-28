@@ -1,0 +1,3 @@
+# Local rollback copies; never publish Steam/user-specific snapshots.
+webkit.js.before-*
+*.pre-steam-notify-ai
