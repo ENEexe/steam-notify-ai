@@ -56,10 +56,12 @@ node --test tests/*.test.cjs
 
 ## Credits and license
 
-The Store-listing disclosure-highlighting idea is adapted from **[Steam Hide AI](https://github.com/Suvitruf/steam-hide-ai)**, a Tampermonkey/Violentmonkey userscript by **Suvitruf (Andrei Apanasik)**. This repository is a separate SFP-focused implementation: it highlights disclosed games instead of hiding them and does not include the upstream community reporting or filtering features. This project is released under the **MIT License**; [`LICENSE`](LICENSE) retains the upstream copyright notice and adds **Ihor Mohylnyi** for this project's contributions.
+The Store-listing disclosure-highlighting idea is adapted from **[Steam Hide AI](https://github.com/Suvitruf/steam-hide-ai)**, a Tampermonkey/Violentmonkey userscript by **Suvitruf (Andrei Apanasik)**. This repository is a separate SFP-focused implementation: it highlights disclosed games instead of hiding them and does not include the upstream community reporting or filtering features. This project is released under the **[MIT License](LICENSE)**;
 
 SFP is maintained by [PhantomGamers](https://github.com/PhantomGamers/SFP). Steam and Valve are trademarks of Valve Corporation. This project is unofficial and is not affiliated with or endorsed by Valve, SFP, or the upstream userscript author.
 
 ## AI assistance disclosure
 
 Generative AI assisted the development and maintenance of this repository: code adaptation and cleanup, debugging, test creation, and documentation were done with Hermes Agent using OpenAI GPT-6 Luna. The code, tests, and README were also reviewed by a human maintainer. The runtime itself does **not** call an AI model or AI service. Its result is based only on Steam's explicit developer disclosure text; the badge is not an AI classification or a claim about undisclosed AI use.
+
+Which is ironic considering this project was created to warn users about the use of AI in games... But it would be wrong not to mention it.
