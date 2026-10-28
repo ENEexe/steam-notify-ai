@@ -6,7 +6,7 @@ A small SFP customization for Steam. It highlights Store games whose Steam produ
 
 - `webkit.js` — adds a badge/outline to explicitly disclosed Store cards and a disclosure banner on the product page. The script includes its own injected styles; a separate Store CSS file is not needed.
 - `tests/` — dependency-free Node.js tests.
-- [SFP setup tutorial](docs/SETUP.md) — step-by-step Linux setup, adding the JavaScript file, verification, and removal.
+- [SFP Linux setup tutorial](docs/SETUP.md) — step-by-step Linux setup, adding the JavaScript file, verification, and removal.
 
 For Windows or macOS SFP installation, follow the [official SFP setup guide](https://github.com/PhantomGamers/SFP#instructions) linked in Quick setup; this step-by-step tutorial covers Linux.
 
