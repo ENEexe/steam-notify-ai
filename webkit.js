@@ -611,6 +611,15 @@ function buildStyles() {
     .search_result_row.${CHECKING_ROW_CLASS} {
       position: relative !important;
     }
+    .search_result_row.${CARD_CLASS} .search_name .title,
+    .search_result_row.${CHECKING_ROW_CLASS} .search_name .title {
+      display: inline-block !important;
+      max-width: max(0px, calc(100% - 120px)) !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      vertical-align: top !important;
+    }
     .${CARD_BADGE_BASE_CLASS},
     .${PRODUCT_BADGE_CLASS} {
       display: inline-block !important;

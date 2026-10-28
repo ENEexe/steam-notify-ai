@@ -27,6 +27,14 @@ test('resolves only Steam search-result rows as loading-indicator targets', () =
   assert.equal(api.searchResultRow(featuredCard), null);
 });
 
+test('truncates titles on flagged search rows and reserves room for the flair', () => {
+  const css = api.buildStyles();
+  assert.match(
+    css,
+    /\.search_result_row\.sfp-ai-disclosed-card \.search_name \.title,\s*\.search_result_row\.sfp-ai-checking-row \.search_name \.title\s*\{[^}]*max-width:\s*max\(0px,\s*calc\(100% - 120px\)\)[^}]*overflow:\s*hidden[^}]*text-overflow:\s*ellipsis[^}]*white-space:\s*nowrap/s
+  );
+});
+
 test('styles the temporary checking label neutrally and only positions search rows', () => {
   const css = api.buildStyles();
   assert.match(css, /\.sfp-ai-card-badge\s*\{[^}]*position:\s*absolute/s);
