@@ -62,6 +62,8 @@ SFP is maintained by [PhantomGamers](https://github.com/PhantomGamers/SFP). Stea
 
 ## AI assistance disclosure
 
-Generative AI assisted the development and maintenance of this repository: code adaptation and cleanup, debugging, test creation, and documentation were done with Hermes Agent using OpenAI GPT-6 Luna. The code, tests, and README were also reviewed by a human maintainer. The runtime itself does **not** call an AI model or AI service. Its result is based only on Steam's explicit developer disclosure text; the badge is not an AI classification or a claim about undisclosed AI use.
+Generative AI assisted the development and maintenance of this repository: code adaptation and cleanup, debugging, test creation, and documentation were done with the help of OpenAI GPT-6 Luna. The runtime itself does **not** call an AI model or AI service. Its result is based only on Steam's explicit developer disclosure text; the badge is not an AI classification or a claim about undisclosed AI use.
 
-Which is ironic considering this project was created to warn users about the use of AI in games... But it would be wrong not to mention it.
+The code, tests, and README were reviewed and approved by a human.
+
+Which is ironic considering this project was created to warn users about the use of AI in games... But it would be wrong not to mention that I used AI myself.
