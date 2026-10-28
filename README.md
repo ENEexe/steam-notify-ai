@@ -34,7 +34,7 @@ Examples of the disclosure badge and product-page banner in Steam:
 
 - Matches Steam's explicit developer-authored disclosure heading. It does not determine whether a game used AI when the developer did not disclose it.
 - Does not use community reports or third-party disclosure databases.
-- Checks Store cards with same-origin Steam Store requests; caches results for 7 days, allows at most two concurrent lookups, spaces requests by 800 ms, and pauses after Steam responds with HTTP 403/429.
+- Checks Store cards with same-origin Steam Store requests; caches results for 7 days, allows at most two concurrent lookups, starts requests 600 ms apart, and backs off to 1.2–2 seconds plus at least a 60-second pause after HTTP 403/429 responses (honoring longer `Retry-After` headers).
 - Defers cards beyond the queue limit rather than dropping them.
 - Handles lazy-loaded cards, multiple Steam descriptor blocks, release/review alignment (including rows without a review icon), and the product-page purchase section.
 

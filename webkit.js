@@ -15,7 +15,9 @@ const CACHE_KEY = "sfp-ai-disclosure-cache-v2";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 500;
 const MAX_QUEUED_LOOKUPS = 120;
-const REQUEST_SPACING_MS = 800;
+const REQUEST_SPACING_MS = 600;
+const MAX_REQUEST_SPACING_MS = 2_000;
+const MAX_TIMER_DELAY_MS = 2_147_483_647;
 const MAX_CONCURRENT_REQUESTS = 2;
 const APP_SELECTOR = '[data-ds-appid], a[href*="/app/"]';
 const CARD_CLASS = "sfp-ai-disclosed-card";
@@ -112,6 +114,34 @@ function drainDeferredLookups(queue, queued, deferred, limit = MAX_QUEUED_LOOKUP
   }
 }
 
+function nextRequestDelay({ now, lastRequestAt, pauseUntil, spacingMs = REQUEST_SPACING_MS }) {
+  return Math.max(0, pauseUntil - now, lastRequestAt + spacingMs - now);
+}
+
+function backoffRequestSpacing(currentSpacingMs) {
+  return Math.min(Math.max(currentSpacingMs, REQUEST_SPACING_MS) * 2, MAX_REQUEST_SPACING_MS);
+}
+
+function retryAfterDelay(value, now = Date.now()) {
+  const header = String(value ?? "").trim();
+  if (!header) return 0;
+  if (/^\d+(?:\.\d+)?$/.test(header)) {
+    const seconds = Number(header);
+    return Number.isFinite(seconds) ? seconds * 1000 : 0;
+  }
+  const retryAt = Date.parse(header);
+  return Number.isFinite(retryAt) ? Math.max(0, retryAt - now) : 0;
+}
+
+function updateRateLimitState({ status, now, pauseUntil, requestSpacingMs, retryAfter }) {
+  if (status !== 403 && status !== 429) return { pauseUntil, requestSpacingMs };
+  const retryAfterMs = retryAfterDelay(retryAfter, now);
+  return {
+    pauseUntil: Math.max(pauseUntil, now + Math.max(60_000, retryAfterMs)),
+    requestSpacingMs: backoffRequestSpacing(requestSpacingMs)
+  };
+}
+
 function computeSearchBadgePosition({ row, rowBorderLeft = 0, rowBorderTop = 0, title, release, review, reviewIcon, reviewIconWidth = 16, priceContent, badge, compactWidth = COMPACT_BADGE_WIDTH, gap = 8 }) {
   if (!row || !title || !release || !review || !priceContent || !badge) return null;
   const originLeft = row.left + rowBorderLeft;
@@ -192,6 +222,7 @@ function startRuntime(win, doc) {
   let activeRequests = 0;
   let lastRequestAt = 0;
   let pauseUntil = 0;
+  let requestSpacingMs = REQUEST_SPACING_MS;
   let queueTimer = 0;
   let scanTimer = 0;
 
@@ -352,7 +383,15 @@ function startRuntime(win, doc) {
       redirect: "follow"
     });
     if (response.status === 403 || response.status === 429) {
-      pauseUntil = Math.max(pauseUntil, Date.now() + 60_000);
+      const rateLimit = updateRateLimitState({
+        status: response.status,
+        now: Date.now(),
+        pauseUntil,
+        requestSpacingMs,
+        retryAfter: response.headers?.get?.("Retry-After")
+      });
+      pauseUntil = rateLimit.pauseUntil;
+      requestSpacingMs = rateLimit.requestSpacingMs;
       return "unknown";
     }
     if (!response.ok) return "unknown";
@@ -367,16 +406,17 @@ function startRuntime(win, doc) {
   function pumpQueue() {
     if (queueTimer) return;
     while (activeRequests < MAX_CONCURRENT_REQUESTS && queue.length > 0) {
-      const wait = Math.max(
-        0,
-        pauseUntil - Date.now(),
-        lastRequestAt + REQUEST_SPACING_MS - Date.now()
-      );
+      const wait = nextRequestDelay({
+        now: Date.now(),
+        pauseUntil,
+        lastRequestAt,
+        spacingMs: requestSpacingMs
+      });
       if (wait > 0) {
         queueTimer = win.setTimeout(() => {
           queueTimer = 0;
           pumpQueue();
-        }, wait);
+        }, Math.min(wait, MAX_TIMER_DELAY_MS));
         return;
       }
 
@@ -579,6 +619,10 @@ const api = {
   cacheStatus,
   enqueueLookup,
   drainDeferredLookups,
+  nextRequestDelay,
+  backoffRequestSpacing,
+  retryAfterDelay,
+  updateRateLimitState,
   computeSearchBadgePosition,
   ensureProductBanner,
   buildStyles,
